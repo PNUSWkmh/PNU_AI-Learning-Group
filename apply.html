@@ -634,7 +634,7 @@
         </div>
 
         <!-- 폼 -->
-        <form id="applicationForm">
+        <form id="applicationForm" novalidate>
             
             <!-- Step 1: 팀 정보 -->
             <div class="form-step active" data-step="1">
@@ -866,7 +866,7 @@
         // ⚠️ 중요: 아래 URL을 본인의 Apps Script URL로 교체하세요!
         // 배포 가이드의 7단계에서 받은 URL을 여기에 붙여넣으면 됩니다.
         // ============================================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxv4HpNyYfQBflOZN5eZFyAxiSpUUpoKN_iL2sEV2B5w3gCv2KqAYRtQltuM5Dcjw4c/exec';
+        const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
         let currentStep = 1;
         const totalSteps = 5;
@@ -1029,18 +1029,29 @@
         function validateStep(step) {
             const stepEl = document.querySelector(`[data-step="${step}"]`);
             const inputs = stepEl.querySelectorAll('input[required], select[required], textarea[required]');
+            const checkedRadios = new Set();
             
             for (const input of inputs) {
                 if (input.type === 'radio') {
+                    if (checkedRadios.has(input.name)) continue;
+                    checkedRadios.add(input.name);
                     const radioGroup = stepEl.querySelectorAll(`input[name="${input.name}"]`);
                     const checked = Array.from(radioGroup).some(r => r.checked);
                     if (!checked) {
-                        alert('모든 필수 항목을 입력해주세요.');
+                        alert(`"재학 여부" 등 필수 선택 항목을 체크해주세요.`);
+                        return false;
+                    }
+                } else if (input.type === 'checkbox') {
+                    if (!input.checked) {
+                        const labelText = input.nextElementSibling?.textContent || '필수 동의 항목';
+                        alert(`"${labelText}"에 동의해주세요.`);
                         return false;
                     }
                 } else if (!input.value.trim()) {
                     input.focus();
-                    alert(`"${input.previousElementSibling?.firstChild?.textContent || '필수 항목'}"을(를) 입력해주세요.`);
+                    const labelEl = input.closest('.field')?.querySelector('.field-label');
+                    const labelText = labelEl?.firstChild?.textContent?.trim() || '필수 항목';
+                    alert(`"${labelText}"을(를) 입력해주세요.`);
                     return false;
                 }
             }
@@ -1051,16 +1062,75 @@
                 return false;
             }
 
-            // Step 5: 동의 체크
-            if (step === 5) {
-                if (!document.getElementById('consent1').checked ||
-                    !document.getElementById('consent2').checked ||
-                    !document.getElementById('consent3').checked) {
-                    alert('모든 동의 항목에 체크해주세요.');
+            return true;
+        }
+
+        // ===== 전체 단계 검사 (제출 시 사용) =====
+        // 모든 단계를 검사하고, 빈칸이 있으면 그 단계로 자동 이동
+        function validateAllSteps() {
+            for (let step = 1; step <= totalSteps; step++) {
+                const stepEl = document.querySelector(`[data-step="${step}"]`);
+                const inputs = stepEl.querySelectorAll('input[required], select[required], textarea[required]');
+                const checkedRadios = new Set();
+                
+                for (const input of inputs) {
+                    let hasError = false;
+                    let errorMsg = '';
+                    
+                    if (input.type === 'radio') {
+                        if (checkedRadios.has(input.name)) continue;
+                        checkedRadios.add(input.name);
+                        const radioGroup = stepEl.querySelectorAll(`input[name="${input.name}"]`);
+                        const checked = Array.from(radioGroup).some(r => r.checked);
+                        if (!checked) {
+                            hasError = true;
+                            errorMsg = `${step}단계의 필수 선택 항목(재학 여부 등)을 체크해주세요.`;
+                        }
+                    } else if (input.type === 'checkbox') {
+                        if (!input.checked) {
+                            hasError = true;
+                            errorMsg = `${step}단계의 동의 항목을 모두 체크해주세요.`;
+                        }
+                    } else if (!input.value.trim()) {
+                        hasError = true;
+                        const labelEl = input.closest('.field')?.querySelector('.field-label');
+                        const labelText = labelEl?.firstChild?.textContent?.trim() || '필수 항목';
+                        errorMsg = `${step}단계의 "${labelText}"을(를) 입력해주세요.`;
+                    }
+                    
+                    if (hasError) {
+                        // 해당 단계로 자동 이동
+                        if (currentStep !== step) {
+                            goToStep(step);
+                            setTimeout(() => {
+                                alert(errorMsg);
+                                if (input.type !== 'radio' && input.type !== 'checkbox') {
+                                    input.focus();
+                                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }, 400);
+                        } else {
+                            alert(errorMsg);
+                            if (input.type !== 'radio' && input.type !== 'checkbox') {
+                                input.focus();
+                            }
+                        }
+                        return false;
+                    }
+                }
+                
+                // Step 3 팀원 인원 체크
+                if (step === 3 && memberCount < minMembers) {
+                    if (currentStep !== step) {
+                        goToStep(step);
+                    }
+                    setTimeout(() => {
+                        alert(`팀원은 최소 ${minMembers}명 이상이어야 합니다. (팀장 포함 총 4명 이상)`);
+                    }, 400);
                     return false;
                 }
             }
-
+            
             return true;
         }
 
@@ -1096,7 +1166,8 @@
         document.getElementById('applicationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            if (!validateStep(5)) return;
+            // 모든 단계의 모든 필수 항목 검사 (빈칸이 있으면 해당 단계로 자동 이동)
+            if (!validateAllSteps()) return;
 
             if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
                 alert('⚠️ 관리자에게 알려주세요: Apps Script URL이 아직 설정되지 않았습니다.');
