@@ -860,7 +860,7 @@
         // ⚠️ 중요: 아래 URL을 본인의 Apps Script URL로 교체하세요!
         // 배포 가이드의 7단계에서 받은 URL을 여기에 붙여넣으면 됩니다.
         // ============================================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0i92iLcsNkDm2i6h4Ys3JELEm1Q3fbmM70Ks2Cqa8ZyjoJ8nMI7i4qRJskdG1wLMNYg/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3e7ZC3fZzUTJPPxJFcVTkhAcP3jw7XS3YOin_NDeMq5pVNvX9x6PYEc296xRHJNTsLQ/exec';
 
         let currentStep = 1;
         const totalSteps = 5;
@@ -1163,7 +1163,7 @@
             // 모든 단계의 모든 필수 항목 검사 (빈칸이 있으면 해당 단계로 자동 이동)
             if (!validateAllSteps()) return;
 
-            if (APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbz0i92iLcsNkDm2i6h4Ys3JELEm1Q3fbmM70Ks2Cqa8ZyjoJ8nMI7i4qRJskdG1wLMNYg/exec') {
+            if (APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx3e7ZC3fZzUTJPPxJFcVTkhAcP3jw7XS3YOin_NDeMq5pVNvX9x6PYEc296xRHJNTsLQ/exec') {
                 alert('⚠️ 관리자에게 알려주세요: Apps Script URL이 아직 설정되지 않았습니다.');
                 return;
             }
