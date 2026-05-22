@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신청하기 | 2026 PNU AI학습공동체</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0a0e0d;
+            --bg-darker: #050807;
+            --bg-card: #11181a;
+            --bg-input: #1a2225;
+            --accent: #00ff88;
+            --accent-dim: #00cc6e;
+            --accent-glow: rgba(0, 255, 136, 0.15);
+            --text-primary: #e8f0ee;
+            --text-secondary: #8a9994;
+            --text-muted: #5a6a65;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-bright: rgba(0, 255, 136, 0.3);
+            --error: #ff5566;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+            font-size: 17px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 네비게이션 */
+        nav {
+            position: sticky;
+            top: 0;
+            padding: 1.2rem 2rem;
+            background: rgba(10, 14, 13, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .nav-logo span { color: var(--text-primary); }
+
+        .nav-back {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .nav-back:hover { color: var(--accent); }
+
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 2rem 6rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 헤더 */
+        .form-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .form-header .label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--accent);
+            letter-spacing: 0.15em;
+            margin-bottom: 1rem;
+        }
+
+        .form-header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            line-height: 1.15;
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* 진행 상태 표시 */
+        .progress {
+            margin-bottom: 3rem;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--bg-card);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, #00d4ff 100%);
+            border-radius: 100px;
+            width: 20%;
+            transition: width 0.4s ease-out;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .progress-text .current {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* 폼 스텝 */
+        .form-step {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        /* 폼 필드 */
+        .field {
+            margin-bottom: 1.5rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            color: var(--text-primary);
+        }
+
+        .field-label .required {
+            color: var(--accent);
+            margin-left: 0.25rem;
+        }
+
+        .field-label .optional {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 400;
+            margin-left: 0.5rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.9rem 1.1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg-card);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* 2단 그리드 */
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .field-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .field-row, .field-row-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 라디오 그룹 */
+        .radio-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option label {
+            display: block;
+            padding: 0.8rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* 팀원 카드 */
+        .member-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .member-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .member-card-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .remove-member {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .remove-member:hover {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .add-member-btn {
+            width: 100%;
+            background: transparent;
+            border: 2px dashed var(--border);
+            color: var(--text-secondary);
+            padding: 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-member-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .add-member-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* 파일 업로드 */
+        .file-upload {
+            position: relative;
+            background: var(--bg-input);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .file-upload-text strong {
+            color: var(--accent);
+        }
+
+        .file-upload.has-file {
+            border-color: var(--accent);
+            border-style: solid;
+            background: var(--accent-glow);
+        }
+
+        .file-name {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            word-break: break-all;
+        }
+
+        /* 동의 박스 */
+        .consent-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .consent-box h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .consent-box p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .checkbox-row label {
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        /* 버튼 그룹 */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-darker);
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px var(--accent-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* 에러 메시지 */
+        .error-msg {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        /* 완료 화면 */
+        .success-screen {
+            text-align: center;
+            padding: 4rem 0;
+            display: none;
+        }
+
+        .success-screen.active {
+            display: block;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+        }
+
+        .success-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent) 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .success-desc {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        /* 로딩 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+        }
+
+        /* 안내 박스 */
+        .info-box {
+            background: var(--accent-glow);
+            border: 1px solid var(--border-bright);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav>
+        <a href="index.html" class="nav-logo">PNU<span>_AI학습공동체</span></a>
+        <a href="index.html" class="nav-back">← 메인으로</a>
+    </nav>
+
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="form-header" id="formHeader">
+            <div class="label">// APPLICATION FORM</div>
+            <h1>참가 신청서</h1>
+            <p>아래 양식을 작성하여 신청을 완료해주세요</p>
+        </div>
+
+        <!-- 진행 상태 -->
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span><span class="current" id="currentStep">1</span> / 5 단계</span>
+                <span id="stepName">팀 정보</span>
+            </div>
+        </div>
+
+        <!-- 폼 -->
+        <form id="applicationForm">
+            
+            <!-- Step 1: 팀 정보 -->
+            <div class="form-step active" data-step="1">
+                <h2 class="step-title">팀 정보</h2>
+                <p class="step-desc">팀과 프로젝트에 대한 기본 정보를 입력해주세요.</p>
+
+                <div class="field">
+                    <label class="field-label">팀명<span class="required">*</span></label>
+                    <input type="text" name="teamName" placeholder="예: AI어벤져스" required>
+                </div>
+
+                <div class="field">
+                    <label class="field-label">프로젝트명<span class="required">*</span></label>
+                    <input type="text" name="projectName" placeholder="예: AI 기반 학습 도우미 앱 개발" required>
+                </div>
+
+                <div class="field">
+                    <label class="field-label">참가 예정 경진대회<span class="optional">(선택)</span></label>
+                    <input type="text" name="contest" placeholder="예: 부산SW융합해커톤, 데이터크리에이터캠프 등">
+                </div>
+
+                <div class="field">
+                    <label class="field-label">프로젝트 요약<span class="required">*</span></label>
+                    <textarea name="projectSummary" placeholder="프로젝트의 목적, 주요 기능, 기대 효과 등을 간단히 설명해주세요." required></textarea>
+                </div>
+            </div>
+
+            <!-- Step 2: 팀장 정보 -->
+            <div class="form-step" data-step="2">
+                <h2 class="step-title">팀장 정보</h2>
+                <p class="step-desc">팀을 대표하는 팀장의 정보를 입력해주세요.</p>
+
+                <div class="info-box">
+                    💡 <strong>팀장은 반드시 SW전공</strong>(정보컴퓨터공학부 또는 의생명융합공학부 데이터사이언스 전공) 학생이어야 합니다.
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label class="field-label">성명<span class="required">*</span></label>
+                        <input type="text" name="leaderName" placeholder="홍길동" required>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">생년월일<span class="required">*</span></label>
+                        <input type="date" name="leaderBirth" required>
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label class="field-label">학부(과)<span class="required">*</span></label>
+                        <select name="leaderDept" required>
+                            <option value="">선택해주세요</option>
+                            <option value="정보컴퓨터공학부">정보컴퓨터공학부</option>
+                            <option value="의생명융합공학부">의생명융합공학부</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">전공<span class="required">*</span></label>
+                        <input type="text" name="leaderMajor" placeholder="예: 데이터사이언스 전공" required>
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label class="field-label">학번<span class="required">*</span></label>
+                        <input type="text" name="leaderStudentId" placeholder="예: 202012345" required>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">학년<span class="required">*</span></label>
+                        <select name="leaderGrade" required>
+                            <option value="">선택</option>
+                            <option value="1">1학년</option>
+                            <option value="2">2학년</option>
+                            <option value="3">3학년</option>
+                            <option value="4">4학년</option>
+                            <option value="5+">초과학기</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label class="field-label">휴대폰<span class="required">*</span></label>
+                        <input type="tel" name="leaderPhone" placeholder="010-1234-5678" required>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">이메일<span class="required">*</span></label>
+                        <input type="email" name="leaderEmail" placeholder="example@pusan.ac.kr" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label">재학 여부<span class="required">*</span></label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="leader-enrolled" name="leaderStatus" value="재학" required>
+                            <label for="leader-enrolled">재학</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="leader-leave" name="leaderStatus" value="휴학">
+                            <label for="leader-leave">휴학</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: 팀원 정보 -->
+            <div class="form-step" data-step="3">
+                <h2 class="step-title">팀원 정보</h2>
+                <p class="step-desc">팀원의 정보를 입력해주세요. <strong style="color: var(--accent);">최소 3명 이상</strong> (팀장 포함 총 4명 이상)</p>
+
+                <div class="info-box">
+                    💡 <strong>팀 구성원의 50%는 SW전공</strong>(정컴 또는 의생명 DS) 학생이어야 합니다.<br>
+                    팀원은 최대 5명까지 추가할 수 있습니다.
+                </div>
+
+                <div id="membersContainer">
+                    <!-- 팀원 카드가 동적으로 추가됨 -->
+                </div>
+
+                <button type="button" class="add-member-btn" id="addMemberBtn">+ 팀원 추가하기</button>
+            </div>
+
+            <!-- Step 4: 파일 업로드 -->
+            <div class="form-step" data-step="4">
+                <h2 class="step-title">서류 업로드</h2>
+                <p class="step-desc">참가신청서와 활동계획서를 업로드해주세요.</p>
+
+                <div class="info-box">
+                    📄 PDF, HWP, DOCX 형식 파일을 업로드해주세요. <strong>파일당 최대 10MB</strong>까지 가능합니다.
+                </div>
+
+                <div class="field">
+                    <label class="field-label">참가신청서<span class="required">*</span></label>
+                    <div class="file-upload" id="upload1">
+                        <input type="file" name="file1" id="file1" accept=".pdf,.hwp,.docx,.doc" required>
+                        <div class="file-upload-icon">📎</div>
+                        <div class="file-upload-text">
+                            <strong>클릭</strong>하거나 파일을 드래그해서 업로드<br>
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">PDF · HWP · DOCX</span>
+                        </div>
+                        <div class="file-name" id="fileName1"></div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label">활동계획서<span class="required">*</span></label>
+                    <div class="file-upload" id="upload2">
+                        <input type="file" name="file2" id="file2" accept=".pdf,.hwp,.docx,.doc" required>
+                        <div class="file-upload-icon">📎</div>
+                        <div class="file-upload-text">
+                            <strong>클릭</strong>하거나 파일을 드래그해서 업로드<br>
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">PDF · HWP · DOCX</span>
+                        </div>
+                        <div class="file-name" id="fileName2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: 동의 및 제출 -->
+            <div class="form-step" data-step="5">
+                <h2 class="step-title">개인정보 동의</h2>
+                <p class="step-desc">아래 항목을 확인하고 동의해주세요.</p>
+
+                <div class="consent-box">
+                    <h4>// 개인정보 수집 및 이용</h4>
+                    <p><strong>수집 목적:</strong> 신청자 식별, 팀 구성 및 장학금 지급, 활동 관련 통계자료</p>
+                    <p><strong>수집 항목:</strong> 성명, 생년월일, 연락처, 이메일, 학과(부), 전공, 학년</p>
+                    <p><strong>보유 기간:</strong> SW중심대학 사업 종료 후 1년</p>
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="consent1" name="consent1" required>
+                        <label for="consent1">위 내용에 동의합니다 (필수)</label>
+                    </div>
+                </div>
+
+                <div class="consent-box">
+                    <h4>// 개인정보 제3자 제공</h4>
+                    <p><strong>제공받는 자:</strong> SW중심대학 전담기관, 부산대학교 산학협력단, 대회 주최/주관기관</p>
+                    <p><strong>제공 목적:</strong> 심사 및 참가자 통계자료 제공, 상금지급</p>
+                    <p><strong>제공 항목:</strong> 성명, 생년월일, 연락처, 이메일, 학과(부), 전공, 학년, 출품작</p>
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="consent2" name="consent2" required>
+                        <label for="consent2">위 내용에 동의합니다 (필수)</label>
+                    </div>
+                </div>
+
+                <div class="consent-box">
+                    <h4>// 서약 사항</h4>
+                    <p>1. 제출물의 모든 내용은 허위사실이 없으며, 차후 출품작 관련 문제 발생 시 모든 법적, 도의적 책임은 본인에게 있습니다.</p>
+                    <p>2. 모든 활동 내역은 GitHub를 통해 공개되어야 하며, 최종보고서는 제출 후 6개월간 공개합니다.</p>
+                    <p>3. 본 프로그램의 취지를 이해하고, 주의사항 및 심사위원의 요구사항에 성실히 응합니다.</p>
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="consent3" name="consent3" required>
+                        <label for="consent3">위 내용에 동의합니다 (필수)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="form-actions" id="formActions">
+                <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">← 이전</button>
+                <button type="button" class="btn btn-primary" id="nextBtn">다음 →</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">✓ 신청 완료</button>
+            </div>
+        </form>
+
+        <!-- 로딩 화면 -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p class="loading-text">신청서를 제출하고 있습니다...<br>파일이 큰 경우 시간이 걸릴 수 있어요. 잠시만 기다려주세요.</p>
+        </div>
+
+        <!-- 완료 화면 -->
+        <div class="success-screen" id="successScreen">
+            <div class="success-icon">🎉</div>
+            <h2 class="success-title">신청 완료!</h2>
+            <p class="success-desc">
+                <strong style="color: var(--accent);" id="successTeamName">팀</strong> 의 신청이 성공적으로 접수되었습니다.<br>
+                선정 결과는 <strong style="color: var(--accent);">2026년 6월 10일(수)</strong>에 발표됩니다.<br>
+                작성하신 이메일로 결과를 안내드릴 예정이에요.
+            </p>
+            <a href="index.html" class="btn btn-primary" style="display: inline-flex;">메인으로 돌아가기</a>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // ⚠️ 중요: 아래 URL을 본인의 Apps Script URL로 교체하세요!
+        // 배포 가이드의 7단계에서 받은 URL을 여기에 붙여넣으면 됩니다.
+        // ============================================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxv4HpNyYfQBflOZN5eZFyAxiSpUUpoKN_iL2sEV2B5w3gCv2KqAYRtQltuM5Dcjw4c/exec';
+
+        let currentStep = 1;
+        const totalSteps = 5;
+        let memberCount = 0;
+        const maxMembers = 5;
+        const minMembers = 3;
+
+        const stepNames = {
+            1: '팀 정보',
+            2: '팀장 정보',
+            3: '팀원 정보',
+            4: '서류 업로드',
+            5: '개인정보 동의'
+        };
+
+        // ===== 진행 상태 업데이트 =====
+        function updateProgress() {
+            const fill = document.getElementById('progressFill');
+            fill.style.width = (currentStep / totalSteps * 100) + '%';
+            document.getElementById('currentStep').textContent = currentStep;
+            document.getElementById('stepName').textContent = stepNames[currentStep];
+        }
+
+        // ===== 스텝 전환 =====
+        function goToStep(step) {
+            document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+            document.querySelector(`[data-step="${step}"]`).classList.add('active');
+            
+            currentStep = step;
+            updateProgress();
+
+            // 버튼 상태
+            document.getElementById('prevBtn').style.display = step > 1 ? 'inline-flex' : 'none';
+            document.getElementById('nextBtn').style.display = step < totalSteps ? 'inline-flex' : 'none';
+            document.getElementById('submitBtn').style.display = step === totalSteps ? 'inline-flex' : 'none';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ===== 팀원 카드 추가 =====
+        function addMemberCard() {
+            if (memberCount >= maxMembers) return;
+            
+            memberCount++;
+            const container = document.getElementById('membersContainer');
+            const card = document.createElement('div');
+            card.className = 'member-card';
+            card.dataset.memberIndex = memberCount;
+            
+            card.innerHTML = `
+                <div class="member-card-header">
+                    <div class="member-card-title">// 팀원 ${memberCount}</div>
+                    <button type="button" class="remove-member" onclick="removeMember(this)">삭제</button>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label class="field-label">성명<span class="required">*</span></label>
+                        <input type="text" name="memberName${memberCount}" placeholder="홍길동" required>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">학번<span class="required">*</span></label>
+                        <input type="text" name="memberStudentId${memberCount}" placeholder="202012345" required>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label class="field-label">학부(과)<span class="required">*</span></label>
+                        <input type="text" name="memberDept${memberCount}" placeholder="예: 정보컴퓨터공학부" required>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">전공<span class="required">*</span></label>
+                        <input type="text" name="memberMajor${memberCount}" placeholder="예: 정보컴퓨터공학" required>
+                    </div>
+                </div>
+                <div class="field-row-3">
+                    <div class="field">
+                        <label class="field-label">학년<span class="required">*</span></label>
+                        <select name="memberGrade${memberCount}" required>
+                            <option value="">선택</option>
+                            <option value="1">1학년</option>
+                            <option value="2">2학년</option>
+                            <option value="3">3학년</option>
+                            <option value="4">4학년</option>
+                            <option value="5+">초과학기</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">휴대폰<span class="required">*</span></label>
+                        <input type="tel" name="memberPhone${memberCount}" placeholder="010-1234-5678" required>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">이메일<span class="required">*</span></label>
+                        <input type="email" name="memberEmail${memberCount}" placeholder="example@pusan.ac.kr" required>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(card);
+            
+            // 추가 버튼 상태 업데이트
+            updateAddButton();
+        }
+
+        // ===== 팀원 삭제 =====
+        function removeMember(button) {
+            const card = button.closest('.member-card');
+            card.remove();
+            memberCount--;
+            
+            // 번호 재정렬
+            document.querySelectorAll('.member-card').forEach((c, i) => {
+                c.querySelector('.member-card-title').textContent = `// 팀원 ${i + 1}`;
+            });
+            
+            updateAddButton();
+        }
+
+        function updateAddButton() {
+            const btn = document.getElementById('addMemberBtn');
+            btn.disabled = memberCount >= maxMembers;
+            btn.textContent = memberCount >= maxMembers 
+                ? `최대 ${maxMembers}명까지 추가할 수 있습니다` 
+                : '+ 팀원 추가하기';
+        }
+
+        // 초기 팀원 카드 3개 추가
+        for (let i = 0; i < minMembers; i++) {
+            addMemberCard();
+        }
+
+        document.getElementById('addMemberBtn').addEventListener('click', addMemberCard);
+
+        // ===== 파일 업로드 처리 =====
+        function setupFileUpload(inputId, displayId, uploadId) {
+            const input = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            const upload = document.getElementById(uploadId);
+            
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('파일 크기는 10MB 이하여야 합니다.');
+                        input.value = '';
+                        return;
+                    }
+                    display.textContent = `📎 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`;
+                    upload.classList.add('has-file');
+                } else {
+                    display.textContent = '';
+                    upload.classList.remove('has-file');
+                }
+            });
+        }
+
+        setupFileUpload('file1', 'fileName1', 'upload1');
+        setupFileUpload('file2', 'fileName2', 'upload2');
+
+        // ===== 스텝별 유효성 검사 =====
+        function validateStep(step) {
+            const stepEl = document.querySelector(`[data-step="${step}"]`);
+            const inputs = stepEl.querySelectorAll('input[required], select[required], textarea[required]');
+            
+            for (const input of inputs) {
+                if (input.type === 'radio') {
+                    const radioGroup = stepEl.querySelectorAll(`input[name="${input.name}"]`);
+                    const checked = Array.from(radioGroup).some(r => r.checked);
+                    if (!checked) {
+                        alert('모든 필수 항목을 입력해주세요.');
+                        return false;
+                    }
+                } else if (!input.value.trim()) {
+                    input.focus();
+                    alert(`"${input.previousElementSibling?.firstChild?.textContent || '필수 항목'}"을(를) 입력해주세요.`);
+                    return false;
+                }
+            }
+
+            // Step 3: 팀원 최소 인원 체크
+            if (step === 3 && memberCount < minMembers) {
+                alert(`팀원은 최소 ${minMembers}명 이상이어야 합니다. (팀장 포함 총 4명 이상)`);
+                return false;
+            }
+
+            // Step 5: 동의 체크
+            if (step === 5) {
+                if (!document.getElementById('consent1').checked ||
+                    !document.getElementById('consent2').checked ||
+                    !document.getElementById('consent3').checked) {
+                    alert('모든 동의 항목에 체크해주세요.');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // ===== 다음/이전 버튼 =====
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (validateStep(currentStep)) {
+                goToStep(currentStep + 1);
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            goToStep(currentStep - 1);
+        });
+
+        // ===== 파일을 base64로 변환 =====
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve({
+                        name: file.name,
+                        type: file.type,
+                        data: base64
+                    });
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ===== 폼 제출 =====
+        document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!validateStep(5)) return;
+
+            if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+                alert('⚠️ 관리자에게 알려주세요: Apps Script URL이 아직 설정되지 않았습니다.');
+                return;
+            }
+
+            // UI 전환
+            document.getElementById('applicationForm').style.display = 'none';
+            document.getElementById('progress').style.display = 'none';
+            document.getElementById('formHeader').style.display = 'none';
+            document.getElementById('loading').classList.add('active');
+
+            try {
+                // 폼 데이터 수집
+                const formData = new FormData(e.target);
+                const data = {};
+                
+                for (const [key, value] of formData.entries()) {
+                    if (!(value instanceof File)) {
+                        data[key] = value;
+                    }
+                }
+
+                // 팀원 정보 정리
+                data.members = [];
+                for (let i = 1; i <= memberCount; i++) {
+                    const memberCard = document.querySelector(`[data-member-index="${i}"]`);
+                    if (memberCard) {
+                        data.members.push({
+                            name: memberCard.querySelector(`[name^="memberName"]`)?.value || '',
+                            studentId: memberCard.querySelector(`[name^="memberStudentId"]`)?.value || '',
+                            dept: memberCard.querySelector(`[name^="memberDept"]`)?.value || '',
+                            major: memberCard.querySelector(`[name^="memberMajor"]`)?.value || '',
+                            grade: memberCard.querySelector(`[name^="memberGrade"]`)?.value || '',
+                            phone: memberCard.querySelector(`[name^="memberPhone"]`)?.value || '',
+                            email: memberCard.querySelector(`[name^="memberEmail"]`)?.value || ''
+                        });
+                    }
+                }
+
+                // 파일 변환
+                const file1 = document.getElementById('file1').files[0];
+                const file2 = document.getElementById('file2').files[0];
+                
+                if (file1) data.file1 = await fileToBase64(file1);
+                if (file2) data.file2 = await fileToBase64(file2);
+
+                data.submittedAt = new Date().toISOString();
+
+                // Apps Script로 전송
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(data)
+                });
+
+                // no-cors 모드라 응답을 직접 읽을 수 없음. 성공으로 간주
+                
+                // 완료 화면 표시
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('successScreen').classList.add('active');
+                document.getElementById('successTeamName').textContent = data.teamName;
+
+            } catch (error) {
+                console.error('제출 오류:', error);
+                alert('신청 중 오류가 발생했습니다. 다시 시도하시거나 담당자에게 문의해주세요.');
+                
+                // UI 복원
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('applicationForm').style.display = 'block';
+                document.getElementById('progress').style.display = 'block';
+                document.getElementById('formHeader').style.display = 'block';
+            }
+        });
+
+        updateProgress();
+    </script>
+</body>
+</html>
